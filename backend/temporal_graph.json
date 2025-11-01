@@ -1,0 +1,76 @@
+{
+  "nodes": ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"],
+  "edges": [
+    {
+      "src": "A",
+      "dst": "B",
+      "times": [0, 1, 2, 5]
+    },
+    {
+      "src": "A",
+      "dst": "C",
+      "times": [0, 1]
+    },
+    {
+      "src": "B",
+      "dst": "D",
+      "times": [1, 2, 3, 4]
+    },
+    {
+      "src": "C",
+      "dst": "D",
+      "times": [2, 3, 4]
+    },
+    {
+      "src": "D",
+      "dst": "E",
+      "times": [3, 4, 5, 6]
+    },
+    {
+      "src": "E",
+      "dst": "F",
+      "times": [5, 6, 7]
+    },
+    {
+      "src": "F",
+      "dst": "G",
+      "times": [6, 7, 8]
+    },
+    {
+      "src": "G",
+      "dst": "H",
+      "times": [7, 8, 9]
+    },
+    {
+      "src": "B",
+      "dst": "E",
+      "times": [4, 5, 6]
+    },
+    {
+      "src": "C",
+      "dst": "F",
+      "times": [5, 6]
+    },
+    {
+      "src": "A",
+      "dst": "E",
+      "times": [8, 9]
+    },
+    {
+      "src": "H",
+      "dst": "I",
+      "times": [8, 9, 10]
+    },
+    {
+      "src": "I",
+      "dst": "J",
+      "times": [9, 10]
+    },
+    {
+      "src": "D",
+      "dst": "H",
+      "times": [6, 7, 8]
+    }
+  ],
+  "maxTime": 10
+}
