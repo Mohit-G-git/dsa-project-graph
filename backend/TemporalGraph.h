@@ -55,6 +55,7 @@ public:
     // Algorithms
     std::vector<BFSResult> temporalBFS(const std::string& startNode, int startTime) const;
     PathResult shortestTemporalPath(const std::string& start, const std::string& end, int startTime) const;
+    PathResult dijkstraShortestPath(const std::string& start, const std::string& end, int startTime) const;
     std::map<std::string, int> computeCentrality(int currentTime) const;
     bool isTemporallyConnected(const std::string& src, const std::string& dst, int startTime) const;
     std::pair<int, int> getTemporalDegree(const std::string& node, int currentTime) const;

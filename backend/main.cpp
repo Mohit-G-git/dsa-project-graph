@@ -16,14 +16,15 @@ void displayMenu() {
     cout << "2.  Add Edge\n";
     cout << "3.  Display Statistics\n";
     cout << "4.  Run Temporal BFS\n";
-    cout << "5.  Find Shortest Temporal Path\n";
-    cout << "6.  Compute Temporal Centrality\n";
-    cout << "7.  Check Temporal Connectivity\n";
-    cout << "8.  Get Node Temporal Degree\n";
-    cout << "9.  Display Active Edges\n";
-    cout << "10. Load Sample Graph\n";
-    cout << "11. Generate Random Graph\n";
-    cout << "12. Export to JSON\n";
+    cout << "5.  Find Shortest Temporal Path (BFS)\n";
+    cout << "6.  Find Shortest Path (Dijkstra)\n";
+    cout << "7.  Compute Temporal Centrality\n";
+    cout << "8.  Check Temporal Connectivity\n";
+    cout << "9.  Get Node Temporal Degree\n";
+    cout << "10. Display Active Edges\n";
+    cout << "11. Load Sample Graph\n";
+    cout << "12. Generate Random Graph\n";
+    cout << "13. Export to JSON\n";
     cout << "0.  Exit\n";
     cout << "=============================================================\n";
     cout << "Enter choice: ";
@@ -98,7 +99,7 @@ int main() {
                 break;
             }
             
-            case 5: { // Shortest Path
+            case 5: { // Shortest Path (BFS)
                 cout << "Enter start node: ";
                 getline(cin, src);
                 cout << "Enter end node: ";
@@ -108,7 +109,7 @@ int main() {
                 
                 PathResult path = graph.shortestTemporalPath(src, dst, currentTime);
                 if (path.arrivalTime >= 0) {
-                    cout << "\nShortest temporal path:\n";
+                    cout << "\nShortest temporal path (BFS):\n";
                     for (size_t i = 0; i < path.path.size(); i++) {
                         cout << path.path[i];
                         if (i < path.path.size() - 1) cout << " -> ";
@@ -120,7 +121,30 @@ int main() {
                 break;
             }
             
-            case 6: { // Centrality
+            case 6: { // Dijkstra Shortest Path
+                cout << "Enter start node: ";
+                getline(cin, src);
+                cout << "Enter end node: ";
+                getline(cin, dst);
+                cout << "Enter start time: ";
+                cin >> currentTime;
+                
+                PathResult path = graph.dijkstraShortestPath(src, dst, currentTime);
+                if (path.arrivalTime >= 0) {
+                    cout << "\nShortest path (Dijkstra):\n";
+                    for (size_t i = 0; i < path.path.size(); i++) {
+                        cout << path.path[i];
+                        if (i < path.path.size() - 1) cout << " -> ";
+                    }
+                    cout << "\nArrival time: t=" << path.arrivalTime << "\n";
+                    cout << "Total cost: " << (path.arrivalTime - currentTime) << " time units\n";
+                } else {
+                    cout << "No path found.\n";
+                }
+                break;
+            }
+            
+            case 7: { // Centrality
                 cout << "Enter current time: ";
                 cin >> currentTime;
                 
@@ -132,7 +156,7 @@ int main() {
                 break;
             }
             
-            case 7: { // Connectivity
+            case 8: { // Connectivity
                 cout << "Enter source node: ";
                 getline(cin, src);
                 cout << "Enter destination node: ";
@@ -147,7 +171,7 @@ int main() {
                 break;
             }
             
-            case 8: { // Temporal Degree
+            case 9: { // Temporal Degree
                 cout << "Enter node name: ";
                 getline(cin, input);
                 cout << "Enter current time: ";
@@ -160,7 +184,7 @@ int main() {
                 break;
             }
             
-            case 9: { // Active Edges
+            case 10: { // Active Edges
                 cout << "Enter current time: ";
                 cin >> currentTime;
                 
@@ -173,13 +197,13 @@ int main() {
                 break;
             }
             
-            case 10: { // Load Sample
+            case 11: { // Load Sample
                 graph = loadSampleGraph();
                 cout << "Sample graph loaded!\n";
                 break;
             }
             
-            case 11: { // Random Graph
+            case 12: { // Random Graph
                 int numNodes;
                 double density;
                 int maxT;
@@ -195,7 +219,7 @@ int main() {
                 break;
             }
             
-            case 12: { // Export JSON
+            case 13: { // Export JSON
                 cout << graph.toJSON();
                 
                 ofstream file("temporal_graph.json");

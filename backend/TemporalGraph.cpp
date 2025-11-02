@@ -157,6 +157,79 @@ PathResult TemporalGraph::shortestTemporalPath(const string& start, const string
     return PathResult(); // No path found
 }
 
+// ==================== DIJKSTRA SHORTEST PATH ====================
+// Dijkstra's algorithm for temporal graphs
+// Finds the path with minimum total time cost (considering waiting times)
+PathResult TemporalGraph::dijkstraShortestPath(const string& start, const string& end, int startTime) const {
+    if (find(nodes.begin(), nodes.end(), start) == nodes.end() ||
+        find(nodes.begin(), nodes.end(), end) == nodes.end()) {
+        return PathResult();
+    }
+    
+    // Priority queue: (cost, time, node, path)
+    // cost = total time elapsed (arrival_time - start_time)
+    priority_queue<tuple<int, int, string, vector<string>>, 
+                   vector<tuple<int, int, string, vector<string>>>,
+                   greater<tuple<int, int, string, vector<string>>>> pq;
+    
+    // Track best cost to reach each (node, time) pair
+    map<pair<string, int>, int> bestCost;
+    
+    vector<string> initialPath = {start};
+    pq.push(make_tuple(0, startTime, start, initialPath));
+    bestCost[make_pair(start, startTime)] = 0;
+    
+    while (!pq.empty()) {
+        auto current = pq.top();
+        pq.pop();
+        
+        int currentCost = get<0>(current);
+        int currentTime = get<1>(current);
+        string currentNode = get<2>(current);
+        vector<string> currentPath = get<3>(current);
+        
+        // If we reached the destination, return the path
+        if (currentNode == end) {
+            return PathResult(currentPath, currentTime);
+        }
+        
+        // Skip if we've already found a better path to this state
+        auto key = make_pair(currentNode, currentTime);
+        if (bestCost.find(key) != bestCost.end() && bestCost[key] < currentCost) {
+            continue;
+        }
+        
+        // Explore all outgoing edges from current node
+        for (const auto& edge : edges) {
+            if (edge.src == currentNode) {
+                // Find the next available time for this edge (>= currentTime)
+                for (int edgeTime : edge.times) {
+                    if (edgeTime >= currentTime) {
+                        int newCost = edgeTime - startTime; // Total elapsed time
+                        auto nextKey = make_pair(edge.dst, edgeTime);
+                        
+                        // Only explore if this is a better path
+                        if (bestCost.find(nextKey) == bestCost.end() || 
+                            bestCost[nextKey] > newCost) {
+                            
+                            bestCost[nextKey] = newCost;
+                            
+                            vector<string> newPath = currentPath;
+                            newPath.push_back(edge.dst);
+                            
+                            pq.push(make_tuple(newCost, edgeTime, edge.dst, newPath));
+                        }
+                        
+                        break; // Only consider the earliest available time
+                    }
+                }
+            }
+        }
+    }
+    
+    return PathResult(); // No path found
+}
+
 // ==================== TEMPORAL CENTRALITY ====================
 map<string, int> TemporalGraph::computeCentrality(int currentTime) const {
     map<string, int> centrality;

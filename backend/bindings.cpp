@@ -42,6 +42,7 @@ EMSCRIPTEN_BINDINGS(temporal_graph_main) {
         .function("addEdge", &TemporalGraph::addEdge)
         .function("temporalBFS", &TemporalGraph::temporalBFS)
         .function("shortestTemporalPath", &TemporalGraph::shortestTemporalPath)
+        .function("dijkstraShortestPath", &TemporalGraph::dijkstraShortestPath)
         .function("computeCentrality", &TemporalGraph::computeCentrality)
         .function("isTemporallyConnected", &TemporalGraph::isTemporallyConnected)
         .function("getTemporalDegree", &TemporalGraph::getTemporalDegree)
