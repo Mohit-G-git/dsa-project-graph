@@ -3,73 +3,56 @@
 
 #include <vector>
 #include <string>
-#include <set>
-#include <queue>
-#include <map>
-#include <utility> // For std::pair
-
-// ==================== DATA STRUCTURES ====================
+#include <limits>
+//#include <optional>
+#include <utility>  // Added for std::pair
 
 struct TemporalEdge {
-    std::string src;
-    std::string dst;
-    std::vector<int> times;
-    
-    TemporalEdge() {}
-    TemporalEdge(std::string s, std::string d, std::vector<int> t) 
-        : src(s), dst(d), times(t) {}
-};
+    int src;    // 1-based index
+    int dst;    // 1-based index
+    int weight; // non-negative weight
+    int start;  // inclusive start time
+    int end;    // inclusive end time
 
-struct BFSResult {
-    std::string node;
-    int time;
-    
-    BFSResult(std::string n, int t) : node(n), time(t) {}
+    TemporalEdge() : src(0), dst(0), weight(0), start(0), end(0) {}
+    TemporalEdge(int s, int d, int w, int st, int en)
+        : src(s), dst(d), weight(w), start(st), end(en) {}
 };
 
 struct PathResult {
-    std::vector<std::string> path;
-    int arrivalTime;
+    std::vector<int> path; // sequence of node indices (1-based)
+    long long cost;        // total weight (for weighted algorithms)
+    bool found;
     
-    PathResult() : arrivalTime(-1) {}
-    PathResult(std::vector<std::string> p, int t) : path(p), arrivalTime(t) {}
+    PathResult() : cost(std::numeric_limits<long long>::max()), found(false) {}
 };
 
-// ==================== TEMPORAL GRAPH CLASS ====================
-
 class TemporalGraph {
-private:
-    std::vector<std::string> nodes;
-    std::vector<TemporalEdge> edges;
-    int maxTime;
-    
 public:
     TemporalGraph();
-    
-    bool addNode(const std::string& nodeName);
-    bool addEdge(const std::string& src, const std::string& dst, const std::vector<int>& times);
-    
-    std::vector<TemporalEdge> getActiveEdges(int currentTime) const;
-    std::set<std::string> getActiveNodes(int currentTime) const;
-    
-    // Algorithms
-    std::vector<BFSResult> temporalBFS(const std::string& startNode, int startTime) const;
-    PathResult shortestTemporalPath(const std::string& start, const std::string& end, int startTime) const;
-    PathResult dijkstraShortestPath(const std::string& start, const std::string& end, int startTime) const;
-    std::map<std::string, int> computeCentrality(int currentTime) const;
-    bool isTemporallyConnected(const std::string& src, const std::string& dst, int startTime) const;
-    std::pair<int, int> getTemporalDegree(const std::string& node, int currentTime) const;
-    
+
+    // Build/reset graph with n nodes
+    void init(int n);
+
+    // Add edge (undirected by default)
+    void addEdge(int u, int v, int weight, int startTime, int endTime, bool directed = false);
+
+    // Get neighbors active at time t
+    std::vector<std::pair<int, int>> neighbors(int u, int t) const; // (v, weight)
+
+    // Algorithms at a fixed time t (only edges with start<=t<=end are considered)
+    std::vector<int> bfs(int start, int t) const;
+    std::vector<int> dfs(int start, int t) const;
+    PathResult dijkstra(int start, int target, int t) const;
+    PathResult astar(int start, int target, int t) const; // heuristic = 0 (placeholder)
+
     // Utilities
-    std::string toJSON() const;
-    void printStatistics(int currentTime) const;
-    
-    // Getters
-    const std::vector<std::string>& getNodes() const;
-    const std::vector<TemporalEdge>& getEdges() const;
-    int getMaxTime() const;
-    size_t getNodeCount() const;
-    size_t getEdgeCount() const;
+    int nodeCount() const;
+    size_t edgeCount() const;
+
+private:
+    int nNodes;
+    std::vector<TemporalEdge> edges;
 };
 
 #endif // TEMPORAL_GRAPH_H
