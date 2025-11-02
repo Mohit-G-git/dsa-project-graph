@@ -2,5 +2,6 @@
 backend/build.exe
 
 # ignore node_modules
+backend/temporal_graph.json
 node_modules/
 /frontend/node_modules/
