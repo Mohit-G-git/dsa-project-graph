@@ -9,64 +9,41 @@
 using namespace emscripten;
 using namespace std;
 
-// ==================== WEBASSEMBLY BINDINGS ====================
-
-// Need to register vector<BFSResult> and PathResult to pass them to JS
-// Note: You may need to bind these structs if you get compile errors
-// For now, we bind the main class and functions.
-// Let's bind BFSResult and PathResult for completeness.
+// ==================== WEBASSEMBLY BINDINGS (updated for integer-node API) ====================
 
 EMSCRIPTEN_BINDINGS(temporal_graph_structs) {
-    
-    value_object<BFSResult>("BFSResult")
-        .field("node", &BFSResult::node)
-        .field("time", &BFSResult::time);
-        
+    // TemporalEdge { int src, dst, weight, start, end }
+    value_object<TemporalEdge>("TemporalEdge")
+        .field("src", &TemporalEdge::src)
+        .field("dst", &TemporalEdge::dst)
+        .field("weight", &TemporalEdge::weight)
+        .field("start", &TemporalEdge::start)
+        .field("end", &TemporalEdge::end);
+
+    // PathResult { vector<int> path; long long cost; bool found; }
     value_object<PathResult>("PathResult")
         .field("path", &PathResult::path)
-        .field("arrivalTime", &PathResult::arrivalTime);
-        
-    // Register std::vector<BFSResult>
-    register_vector<BFSResult>("VectorBFSResult");
-    // Register std::vector<string>
-    register_vector<string>("VectorString");
-    // Register map<string, int>
-    register_map<string, int>("MapStringInt");
-}
+        .field("cost", &PathResult::cost)
+        .field("found", &PathResult::found);
 
+    register_vector<int>("VectorInt");
+    register_vector<TemporalEdge>("VectorTemporalEdge");
+}
 
 EMSCRIPTEN_BINDINGS(temporal_graph_main) {
     class_<TemporalGraph>("TemporalGraph")
         .constructor<>()
-        .function("addNode", &TemporalGraph::addNode)
+        .function("init", &TemporalGraph::init)
         .function("addEdge", &TemporalGraph::addEdge)
-        .function("temporalBFS", &TemporalGraph::temporalBFS)
-        .function("shortestTemporalPath", &TemporalGraph::shortestTemporalPath)
-        .function("computeCentrality", &TemporalGraph::computeCentrality)
-        .function("isTemporallyConnected", &TemporalGraph::isTemporallyConnected)
-        .function("getTemporalDegree", &TemporalGraph::getTemporalDegree)
-        .function("getActiveEdges", &TemporalGraph::getActiveEdges)
-        .function("getActiveNodes", &TemporalGraph::getActiveNodes)
-        .function("getNodeCount", &TemporalGraph::getNodeCount)
-        .function("getEdgeCount", &TemporalGraph::getEdgeCount)
-        .function("toJSON", &TemporalGraph::toJSON)
-        .function("getNodes", &TemporalGraph::getNodes)
-        .function("getEdges", &TemporalGraph::getEdges)
-        .function("getMaxTime", &TemporalGraph::getMaxTime);
-    
+        .function("bfs", &TemporalGraph::bfs)
+        .function("dfs", &TemporalGraph::dfs)
+        .function("dijkstra", &TemporalGraph::dijkstra)
+        .function("astar", &TemporalGraph::astar)
+        .function("nodeCount", &TemporalGraph::nodeCount)
+        .function("edgeCount", &TemporalGraph::edgeCount);
+
     function("loadSampleGraph", &loadSampleGraph);
     function("generateRandomGraph", &generateRandomGraph);
-    
-    // We also need to bind TemporalEdge to return it
-    value_object<TemporalEdge>("TemporalEdge")
-        .field("src", &TemporalEdge::src)
-        .field("dst", &TemporalEdge::dst)
-        .field("times", &TemporalEdge::times);
-        
-    register_vector<TemporalEdge>("VectorTemporalEdge");
-    register_vector<int>("VectorInt");
-    register_set<string>("SetString");
-    register_pair<int, int>("PairIntInt");
 }
 
 #endif // __EMSCRIPTEN__
