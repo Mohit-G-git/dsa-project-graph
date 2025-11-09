@@ -35,23 +35,6 @@ EMSCRIPTEN_BINDINGS(temporal_graph_main) {
         .constructor<>()
         .function("init", &TemporalGraph::init)
         .function("addEdge", &TemporalGraph::addEdge)
-<<<<<<< HEAD
-        .function("temporalBFS", &TemporalGraph::temporalBFS)
-        .function("shortestTemporalPath", &TemporalGraph::shortestTemporalPath)
-        .function("dijkstraShortestPath", &TemporalGraph::dijkstraShortestPath)
-        .function("computeCentrality", &TemporalGraph::computeCentrality)
-        .function("isTemporallyConnected", &TemporalGraph::isTemporallyConnected)
-        .function("getTemporalDegree", &TemporalGraph::getTemporalDegree)
-        .function("getActiveEdges", &TemporalGraph::getActiveEdges)
-        .function("getActiveNodes", &TemporalGraph::getActiveNodes)
-        .function("getNodeCount", &TemporalGraph::getNodeCount)
-        .function("getEdgeCount", &TemporalGraph::getEdgeCount)
-        .function("toJSON", &TemporalGraph::toJSON)
-        .function("getNodes", &TemporalGraph::getNodes)
-        .function("getEdges", &TemporalGraph::getEdges)
-        .function("getMaxTime", &TemporalGraph::getMaxTime);
-    
-=======
         .function("bfs", &TemporalGraph::bfs)
         .function("dfs", &TemporalGraph::dfs)
         .function("dijkstra", &TemporalGraph::dijkstra)
@@ -59,7 +42,6 @@ EMSCRIPTEN_BINDINGS(temporal_graph_main) {
         .function("nodeCount", &TemporalGraph::nodeCount)
         .function("edgeCount", &TemporalGraph::edgeCount);
 
->>>>>>> a8abc21f82acae05b04d85f467b274f20a949f91
     function("loadSampleGraph", &loadSampleGraph);
     function("generateRandomGraph", &generateRandomGraph);
 }
