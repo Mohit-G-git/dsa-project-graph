@@ -124,4 +124,4 @@ PathResult TemporalGraph::astar(int start, int target, int t) const {
 }
 
 int TemporalGraph::nodeCount() const { return nNodes; }
-size_t TemporalGraph::edgeCount() const { return edges.size();}
+size_t TemporalGraph::edgeCount() const { return edges.size(); }
