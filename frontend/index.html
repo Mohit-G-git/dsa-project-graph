@@ -4,6 +4,49 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Temporal Graph Visualizer</title>
+    <style>
+      .control-button {
+        padding: 8px 16px;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 14px;
+        font-weight: 500;
+        margin: 0 4px;
+      }
+
+      .control-button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      .reset-button {
+        background-color: #1a1a1a;
+        border: 1px solid #333;
+      }
+
+      .reset-button:hover {
+        background-color: #333;
+      }
+
+      .play-button {
+        background-color: #2ecc71;
+      }
+
+      .play-button:hover {
+        background-color: #27ae60;
+      }
+
+      .pause-button {
+        background-color: #ff4444;
+      }
+
+      .pause-button:hover {
+        background-color: #ff6666;
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>
