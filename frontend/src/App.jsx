@@ -31,17 +31,80 @@ export default function App() {
   const [isAutoFindPath, setIsAutoFindPath] = useState(false);
   const [draggedNode, setDraggedNode] = useState(null);
 
-  // Load graph from input.txt or use default graph
-  useEffect(() => {
-    // Using the exact content from your input.txt file
-    const inputGraph = `3 2 10
-4 5 4 0 10
-2 3 5 0 10`;
+  // Generate random graph
+  function generateRandomGraph(numNodes = 50, maxTime = 20) {
+    const nodeList = Array.from({ length: numNodes }, (_, i) => (i + 1).toString());
+    const edgeList = [];
+    const weights = {};
+    
+    // Create edges with ~10% density for better visibility
+    const edgeDensity = 0.1;
+    let edgeCount = 0;
+    
+    for (let i = 0; i < numNodes; i++) {
+      for (let j = 0; j < numNodes; j++) {
+        if (i !== j && Math.random() < edgeDensity) {
+          const src = nodeList[i];
+          const dst = nodeList[j];
+          
+          // Random weight between 1 and 10
+          const weight = Math.floor(Math.random() * 10) + 1;
+          
+          // Generate random temporal intervals where edge exists
+          // Each edge appears and disappears at different times
+          const times = [];
+          const numIntervals = Math.floor(Math.random() * 3) + 1; // 1-3 intervals
+          
+          for (let interval = 0; interval < numIntervals; interval++) {
+            // Random start time
+            const startTime = Math.floor(Math.random() * maxTime);
+            // Random duration (1-5 time units)
+            const duration = Math.floor(Math.random() * 5) + 1;
+            
+            // Add all time points in this interval
+            for (let t = startTime; t < Math.min(startTime + duration, maxTime); t++) {
+              if (!times.includes(t)) {
+                times.push(t);
+              }
+            }
+          }
+          
+          // Sort times
+          times.sort((a, b) => a - b);
+          
+          // Only add edge if it has at least one time point
+          if (times.length > 0) {
+            edgeList.push({ src, dst, times });
+            weights[`${src}->${dst}`] = weight;
+            edgeCount++;
+          }
+        }
+      }
+    }
+    
+    setNodes(nodeList);
+    setEdges(edgeList);
+    setEdgeWeights(weights);
+    setMaxTime(maxTime);
+    setCurrentTime(0);
+    setPathResult(null);
+    setSelected(null);
+    setTargetNode(null);
+    
+    console.log(`Generated random graph: ${numNodes} nodes, ${edgeCount} edges with dynamic temporal behavior`);
+    
+    // Force layout update
+    setTimeout(() => {
+      setLayout((prev) => (prev === "random" ? "force" : "random"));
+    }, 100);
+  }
 
+  // Load graph from input.txt or use default random graph
+  useEffect(() => {
     const loadGraph = () => {
       if (!edgeText.trim()) {
-        console.log("Loading default graph");
-        parseInputAndSet(inputGraph);
+        console.log("Loading default random graph with 50 nodes");
+        generateRandomGraph(50, 20);
       }
     };
 
@@ -829,6 +892,44 @@ export default function App() {
               </button>
               <button onClick={() => { setSelected(null); setTargetNode(null); }} className="btn btn-secondary">
                 Clear Selection
+              </button>
+            </div>
+          </div>
+
+          <div className="card">
+            <h3 className="card-title">
+              Generate Random Graph
+            </h3>
+            <div className="button-group">
+              <button 
+                onClick={() => generateRandomGraph(10, 15)} 
+                className="btn btn-secondary"
+                style={{ flex: 1 }}
+              >
+                10 Nodes
+              </button>
+              <button 
+                onClick={() => generateRandomGraph(25, 20)} 
+                className="btn btn-secondary"
+                style={{ flex: 1 }}
+              >
+                25 Nodes
+              </button>
+            </div>
+            <div className="button-group" style={{ marginTop: '0.5rem' }}>
+              <button 
+                onClick={() => generateRandomGraph(50, 20)} 
+                className="btn btn-primary"
+                style={{ flex: 1 }}
+              >
+                50 Nodes
+              </button>
+              <button 
+                onClick={() => generateRandomGraph(100, 25)} 
+                className="btn btn-secondary"
+                style={{ flex: 1 }}
+              >
+                100 Nodes
               </button>
             </div>
           </div>
