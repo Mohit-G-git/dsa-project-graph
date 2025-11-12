@@ -708,3 +708,33 @@ body {
     width: 100%;
   }
 }
+
+/* Dark theme overrides (applied when documentElement has data-theme="dark") */
+[data-theme="dark"] body {
+  background: #0b1220;
+  color: #e6eef8;
+}
+[data-theme="dark"] .header {
+  background: linear-gradient(90deg, #071021 0%, #0b1220 100%);
+  border-bottom-color: rgba(255,255,255,0.04);
+}
+[data-theme="dark"] .title { color: #e6eef8; }
+[data-theme="dark"] .controls-container .select,
+[data-theme="dark"] .controls-container .slider-container,
+[data-theme="dark"] .card,
+[data-theme="dark"] .canvas-container,
+[data-theme="dark"] .textarea,
+[data-theme="dark"] .input {
+  background: #0f1724;
+  color: #e6eef8;
+  border-color: rgba(255,255,255,0.04);
+}
+[data-theme="dark"] .sidebar { background: transparent; }
+[data-theme="dark"] .card-title { color: #dbeafe; }
+[data-theme="dark"] .stat-item { background: #071021; border-color: rgba(255,255,255,0.03); }
+[data-theme="dark"] .stat-value { color: #e6eef8; }
+[data-theme="dark"] .btn.btn-secondary { background: #0b1220; color: #e6eef8; border-color: rgba(255,255,255,0.04); }
+[data-theme="dark"] .btn.btn-primary { background: #7c3aed; color: white; }
+[data-theme="dark"] .btn.btn-success { background: #059669; color: white; }
+[data-theme="dark"] .btn.btn-warning { background: #d97706; color: white; }
+[data-theme="dark"] .btn.btn-danger { background: #dc2626; color: white; }

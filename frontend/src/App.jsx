@@ -30,6 +30,14 @@ export default function App() {
   const [edgeWeights, setEdgeWeights] = useState({});
   const [isAutoFindPath, setIsAutoFindPath] = useState(false);
   const [draggedNode, setDraggedNode] = useState(null);
+  const [isDark, setIsDark] = useState(() => {
+    try {
+      const v = localStorage.getItem("tg-dark");
+      return v === "1" || v === "true";
+    } catch (e) {
+      return true;
+    }
+  });
   
   // BFS Traversal state
   const [bfsStart, setBfsStart] = useState(null);
@@ -121,6 +129,15 @@ export default function App() {
 
     loadGraph();
   }, [edgeText]); // Re-run when edgeText changes
+
+  // persist and apply theme
+  useEffect(() => {
+    try {
+      localStorage.setItem("tg-dark", isDark ? "1" : "0");
+    } catch (e) {}
+    if (isDark) document.documentElement.setAttribute("data-theme", "dark");
+    else document.documentElement.removeAttribute("data-theme");
+  }, [isDark]);
 
   function parseInputAndSet(text) {
     console.log("Parsing input:", text); // Debug log
@@ -280,12 +297,12 @@ export default function App() {
     const h = canvas.height;
     ctx.clearRect(0, 0, w, h);
     
-    // Clean white background
-    ctx.fillStyle = "#fafafa";
+  // Clean background (adapts to theme)
+  ctx.fillStyle = isDark ? "#0b1220" : "#fafafa";
     ctx.fillRect(0, 0, w, h);
     
-    // Subtle grid pattern
-    ctx.strokeStyle = "#f0f0f0";
+  // Subtle grid pattern
+  ctx.strokeStyle = isDark ? "rgba(255,255,255,0.03)" : "#f0f0f0";
     ctx.lineWidth = 1;
     const gridSize = 40;
     for (let x = 0; x <= w; x += gridSize) {
@@ -340,11 +357,11 @@ export default function App() {
       // weight label with background
       const mx = (a.x + b.x) / 2;
       const my = (a.y + b.y) / 2;
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(mx - 12, my - 14, 24, 18);
-      ctx.strokeStyle = "#e5e7eb";
-      ctx.strokeRect(mx - 12, my - 14, 24, 18);
-      ctx.fillStyle = "#6b7280";
+  ctx.fillStyle = isDark ? "#0b1220" : "#ffffff";
+  ctx.fillRect(mx - 12, my - 14, 24, 18);
+  ctx.strokeStyle = isDark ? "rgba(255,255,255,0.04)" : "#e5e7eb";
+  ctx.strokeRect(mx - 12, my - 14, 24, 18);
+  ctx.fillStyle = isDark ? "#c7c7d2" : "#6b7280";
       ctx.font = "600 11px Inter";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
@@ -387,9 +404,9 @@ export default function App() {
       // weight label with emphasis
       const mx = (a.x + b.x) / 2;
       const my = (a.y + b.y) / 2;
-      ctx.fillStyle = "#1a1a1a";
-      ctx.fillRect(mx - 14, my - 15, 28, 20);
-      ctx.fillStyle = "#ffffff";
+  ctx.fillStyle = isDark ? "#c7c7d2" : "#1a1a1a";
+  ctx.fillRect(mx - 14, my - 15, 28, 20);
+  ctx.fillStyle = isDark ? "#0b1220" : "#ffffff";
       ctx.font = "600 12px Inter";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
@@ -430,17 +447,17 @@ export default function App() {
       const isBfsNode = bfsNodeSet.has(n);
 
       // Minimalistic node styling
-      let nodeRadius = 14;
-      let fillColor = "#e5e7eb";
-      let textColor = "#6b7280";
-      let borderColor = "#9ca3af";
+  let nodeRadius = 14;
+  let fillColor = isDark ? "#0f1724" : "#e5e7eb";
+  let textColor = isDark ? "#c7c7d2" : "#6b7280";
+  let borderColor = isDark ? "rgba(255,255,255,0.06)" : "#9ca3af";
       let borderWidth = 2;
 
       if (n === selected) {
         nodeRadius = 18;
-        fillColor = "#1a1a1a";
-        textColor = "#ffffff";
-        borderColor = "#1a1a1a";
+        fillColor = isDark ? "#94a3b8" : "#1a1a1a";
+        textColor = isDark ? "#0b1220" : "#ffffff";
+        borderColor = isDark ? "#94a3b8" : "#1a1a1a";
         borderWidth = 3;
       } else if (isCurrentBfsNode(n)) {
         // Current node being processed - orange/amber
@@ -458,22 +475,22 @@ export default function App() {
         borderWidth = 3;
       } else if (bfsNodeSet.has(n)) {
         // BFS visited nodes - blue
-        nodeRadius = 16;
-        fillColor = "#3b82f6";
-        textColor = "#ffffff";
-        borderColor = "#1d4ed8";
+  nodeRadius = 16;
+  fillColor = "#3b82f6";
+  textColor = "#ffffff";
+  borderColor = "#1d4ed8";
         borderWidth = 2;
       } else if (isPathNode) {
-        nodeRadius = 17;
-        fillColor = "#1a1a1a";
-        textColor = "#ffffff";
-        borderColor = "#1a1a1a";
+  nodeRadius = 17;
+  fillColor = isDark ? "#94a3b8" : "#1a1a1a";
+  textColor = isDark ? "#0b1220" : "#ffffff";
+  borderColor = isDark ? "#94a3b8" : "#1a1a1a";
         borderWidth = 3;
       } else if (isActive) {
-        nodeRadius = 15;
-        fillColor = "#ffffff";
-        textColor = "#1a1a1a";
-        borderColor = "#1a1a1a";
+  nodeRadius = 15;
+  fillColor = isDark ? "#0f1724" : "#ffffff";
+  textColor = isDark ? "#c7c7d2" : "#1a1a1a";
+  borderColor = isDark ? "rgba(255,255,255,0.06)" : "#1a1a1a";
         borderWidth = 2;
       }
 
@@ -897,6 +914,14 @@ export default function App() {
             <option value="grid">Grid Layout</option>
             <option value="force">Force Layout</option>
           </select>
+          <button
+            className="btn btn-secondary"
+            onClick={() => setIsDark((d) => !d)}
+            title="Toggle dark mode"
+            style={{ marginLeft: 8 }}
+          >
+            {isDark ? 'Light' : 'Dark'}
+          </button>
         </div>
       </div>
 
