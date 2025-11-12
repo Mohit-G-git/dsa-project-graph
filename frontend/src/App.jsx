@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import "./styles.css";
 
 // Temporal graph visualizer for input.txt format:
 // First line: numNodes numEdges maxTime
@@ -204,9 +205,28 @@ export default function App() {
     const w = canvas.width;
     const h = canvas.height;
     ctx.clearRect(0, 0, w, h);
-    // background
-    ctx.fillStyle = "#071029";
+    
+    // Clean white background
+    ctx.fillStyle = "#fafafa";
     ctx.fillRect(0, 0, w, h);
+    
+    // Subtle grid pattern
+    ctx.strokeStyle = "#f0f0f0";
+    ctx.lineWidth = 1;
+    const gridSize = 40;
+    for (let x = 0; x <= w; x += gridSize) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, h);
+      ctx.stroke();
+    }
+    for (let y = 0; y <= h; y += gridSize) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(w, y);
+      ctx.stroke();
+    }
+    
     // draw edges active at currentTime
     const active = edges.filter((e) => e.times.includes(currentTime));
 
@@ -237,18 +257,24 @@ export default function App() {
       const key = `${e.src}->${e.dst}`;
       const weight = edgeWeights[key] || 1;
 
-      ctx.strokeStyle = "rgba(100,200,180,0.9)";
+      ctx.strokeStyle = "#d1d5db";
       ctx.beginPath();
       ctx.moveTo(a.x, a.y);
       ctx.lineTo(b.x, b.y);
       ctx.stroke();
 
-      // weight label
+      // weight label with background
       const mx = (a.x + b.x) / 2;
       const my = (a.y + b.y) / 2;
-      ctx.fillStyle = "#fff";
-      ctx.font = "11px monospace";
-      ctx.fillText(weight.toString(), mx, my - 8);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(mx - 12, my - 14, 24, 18);
+      ctx.strokeStyle = "#e5e7eb";
+      ctx.strokeRect(mx - 12, my - 14, 24, 18);
+      ctx.fillStyle = "#6b7280";
+      ctx.font = "600 11px Inter";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(weight.toString(), mx, my - 5);
 
       // arrow
       const ang = Math.atan2(b.y - a.y, b.x - a.x);
@@ -265,12 +291,12 @@ export default function App() {
         ay - 8 * Math.sin(ang + Math.PI / 6)
       );
       ctx.closePath();
-      ctx.fillStyle = "rgba(100,200,180,0.95)";
+      ctx.fillStyle = "#9ca3af";
       ctx.fill();
     });
 
-    // Draw path edges with thicker lines and brighter color
-    ctx.lineWidth = 4;
+    // Draw path edges with emphasis
+    ctx.lineWidth = 3;
     pathEdges.forEach((e) => {
       const a = positions[e.src];
       const b = positions[e.dst];
@@ -278,18 +304,22 @@ export default function App() {
       const key = `${e.src}->${e.dst}`;
       const weight = edgeWeights[key] || 1;
 
-      ctx.strokeStyle = "rgba(255,200,50,0.95)";
+      ctx.strokeStyle = "#1a1a1a";
       ctx.beginPath();
       ctx.moveTo(a.x, a.y);
       ctx.lineTo(b.x, b.y);
       ctx.stroke();
 
-      // weight label - larger for path edges
+      // weight label with emphasis
       const mx = (a.x + b.x) / 2;
       const my = (a.y + b.y) / 2;
-      ctx.fillStyle = "#ffff00";
-      ctx.font = "bold 13px monospace";
-      ctx.fillText(weight.toString(), mx, my - 8);
+      ctx.fillStyle = "#1a1a1a";
+      ctx.fillRect(mx - 14, my - 15, 28, 20);
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "600 12px Inter";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(weight.toString(), mx, my - 5);
 
       // arrow - larger for path edges
       const ang = Math.atan2(b.y - a.y, b.x - a.x);
@@ -306,9 +336,10 @@ export default function App() {
         ay - 10 * Math.sin(ang + Math.PI / 6)
       );
       ctx.closePath();
-      ctx.fillStyle = "rgba(255,200,50,0.95)";
+      ctx.fillStyle = "#1a1a1a";
       ctx.fill();
     });
+    
     // draw nodes
     const activeSet = new Set(active.flatMap((e) => [e.src, e.dst]));
     const pathNodeSet = new Set(pathResult?.path.map((p) => p.node) ?? []);
@@ -319,79 +350,63 @@ export default function App() {
       const isActive = activeSet.has(n);
       const isPathNode = pathNodeSet.has(n);
 
-      // Determine node size and colors with much more contrast
-      let nodeRadius = 10;
-      let fillColor = "#10b981";
-      let borderColor = "#ffffff";
-      let borderWidth = 4;
-      let shadowColor = "rgba(0, 0, 0, 0.6)";
-      let shadowBlur = 8;
+      // Minimalistic node styling
+      let nodeRadius = 14;
+      let fillColor = "#e5e7eb";
+      let textColor = "#6b7280";
+      let borderColor = "#9ca3af";
+      let borderWidth = 2;
 
       if (n === selected) {
-        nodeRadius = 15;
-        fillColor = "#ec4899";
-        borderColor = "#ffffff";
-        borderWidth = 4;
-        shadowColor = "rgba(236, 72, 153, 0.8)";
-        shadowBlur = 12;
+        nodeRadius = 18;
+        fillColor = "#1a1a1a";
+        textColor = "#ffffff";
+        borderColor = "#1a1a1a";
+        borderWidth = 3;
       } else if (isPathNode) {
-        nodeRadius = 15;
-        fillColor = "#fbbf24";
-        borderColor = "#ff8800";
-        borderWidth = 5;
-        shadowColor = "rgba(251, 191, 36, 0.9)";
-        shadowBlur = 12;
+        nodeRadius = 17;
+        fillColor = "#1a1a1a";
+        textColor = "#ffffff";
+        borderColor = "#1a1a1a";
+        borderWidth = 3;
       } else if (isActive) {
-        nodeRadius = 13;
-        fillColor = "#3b82f6";
-        borderColor = "#ffffff";
-        borderWidth = 4;
-        shadowColor = "rgba(59, 130, 246, 0.7)";
-        shadowBlur = 10;
-      } else {
-        nodeRadius = 10;
-        fillColor = "#06b6d4";
-        borderColor = "#ffffff";
-        borderWidth = 4;
-        shadowColor = "rgba(6, 182, 212, 0.6)";
-        shadowBlur = 8;
+        nodeRadius = 15;
+        fillColor = "#ffffff";
+        textColor = "#1a1a1a";
+        borderColor = "#1a1a1a";
+        borderWidth = 2;
       }
 
-      // Draw outer shadow/glow effect (2 layers for more prominence)
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, nodeRadius + 5, 0, Math.PI * 2);
-      ctx.fillStyle = shadowColor;
-      ctx.fill();
+      // Simple shadow
+      ctx.shadowBlur = 4;
+      ctx.shadowColor = "rgba(0, 0, 0, 0.1)";
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = 2;
 
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, nodeRadius + 3, 0, Math.PI * 2);
-      ctx.fillStyle = shadowColor;
-      ctx.fill();
-
-      // Draw main node circle with bright color
+      // Draw main node circle
       ctx.beginPath();
       ctx.arc(p.x, p.y, nodeRadius, 0, Math.PI * 2);
       ctx.fillStyle = fillColor;
       ctx.fill();
 
-      // Draw strong outer border (dark)
+      // Draw border
       ctx.lineWidth = borderWidth;
-      ctx.strokeStyle = "#000000";
-      ctx.stroke();
-
-      // Draw inner bright border
-      ctx.lineWidth = borderWidth - 1.5;
       ctx.strokeStyle = borderColor;
       ctx.stroke();
+      
+      // Reset shadow
+      ctx.shadowBlur = 0;
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = 0;
 
-      // Draw text label with better visibility - larger and bold
-      ctx.fillStyle = "#000000";
-      ctx.font = "bold 16px monospace";
+      // Draw text label - clean and minimal
+      ctx.fillStyle = textColor;
+      ctx.font = "600 14px Inter";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.fillText(n, p.x, p.y);
     });
-  }, [positions, edges, currentTime, selected]);
+  }, [positions, edges, currentTime, selected, pathResult, edgeWeights]);
 
   // play timer
   useEffect(() => {
@@ -602,200 +617,201 @@ export default function App() {
   }
 
   return (
-    <div
-      style={{
-        fontFamily: "Inter,monospace",
-        height: "100vh",
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
-      <div style={{ padding: 16, color: "#030303ff", textAlign: "center" }}>
-        <h2>Temporal Graph Visualizer</h2>
-        <div
-          style={{
-            display: "flex",
-            gap: 8,
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "12px ",
-          }}
-        >
-          <button
-            className="control-button reset-button"
-            onClick={() => {
-              setCurrentTime(0);
-              setIsPlaying(false);
-            }}
-          >
-            Reset
-          </button>
-          <button
-            className={`control-button ${
-              isPlaying ? "pause-button" : "play-button"
-            }`}
-            onClick={() => setIsPlaying((p) => !p)}
-          >
-            {isPlaying ? "Pause" : "Play"}
-          </button>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span>Speed:</span>
+    <div className="app-container">
+      <div className="header">
+        <h1 className="title">Temporal Graph Visualizer</h1>
+        <div className="controls-container">
+          <div className="control-group">
+            <button
+              className="btn btn-secondary"
+              onClick={() => {
+                setCurrentTime(0);
+                setIsPlaying(false);
+              }}
+            >
+              <svg className="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              Reset
+            </button>
+            <button
+              className={`btn ${isPlaying ? 'btn-warning' : 'btn-primary'}`}
+              onClick={() => setIsPlaying((p) => !p)}
+            >
+              {isPlaying ? (
+                <>
+                  <svg className="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Pause
+                </>
+              ) : (
+                <>
+                  <svg className="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Play
+                </>
+              )}
+            </button>
+          </div>
+          
+          <div className="slider-container">
+            <span className="slider-label">Speed</span>
             <input
               type="range"
               min={100}
               max={2000}
               value={speedMs}
               onChange={(e) => setSpeedMs(Number(e.target.value))}
+              className="slider"
             />
-            <span>{speedMs}ms</span>
+            <span className="slider-value">{speedMs}ms</span>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span>Time:</span>
+          
+          <div className="slider-container">
+            <span className="slider-label">Time</span>
             <input
               type="range"
               min={0}
               max={maxTime}
               value={currentTime}
               onChange={(e) => setCurrentTime(Number(e.target.value))}
+              className="slider"
             />
-            <span>t = {currentTime}</span>
+            <span className="slider-value">t = {currentTime}</span>
           </div>
+          
           <select
             value={layout}
             onChange={(e) => setLayout(e.target.value)}
-            style={{ marginLeft: 16 }}
+            className="select"
           >
-            <option value="random">Random</option>
-            <option value="grid">Grid</option>
-            <option value="force">Force (lite)</option>
+            <option value="random">Random Layout</option>
+            <option value="grid">Grid Layout</option>
+            <option value="force">Force Layout</option>
           </select>
         </div>
       </div>
-      <div style={{ flex: 1, display: "flex", gap: 12, padding: 12 }}>
-        <div
-          style={{
-            flex: 1,
-            borderRadius: 8,
-            overflow: "hidden",
-            background: "#071029",
-            padding: 8,
-          }}
-        >
-          <canvas
-            ref={canvasRef}
-            width={700}
-            height={500}
-            style={{
-              width: "100%",
-              height: "100%",
-              cursor: draggedNode ? "grabbing" : "grab",
-            }}
-            onClick={(e) => {
-              if (draggedNode) return; // Don't select if we were dragging
-              const rect = e.currentTarget.getBoundingClientRect();
-              const x =
-                ((e.clientX - rect.left) / rect.width) * e.currentTarget.width;
-              const y =
-                ((e.clientY - rect.top) / rect.height) * e.currentTarget.height;
-              // find node
-              const found = Object.entries(positions).find(
-                ([n, p]) => Math.hypot(p.x - x, p.y - y) < 14
-              );
-              if (found) {
-                const node = found[0];
-                if (selected === null) {
-                  setSelected(node);
-                } else if (node !== selected) {
-                  setTargetNode(node);
-                } else {
-                  setSelected(null);
-                  setTargetNode(null);
+
+      <div className="main-content">
+        <div className="canvas-container">
+          <div className="canvas-wrapper">
+            <canvas
+              ref={canvasRef}
+              width={700}
+              height={500}
+              className="canvas"
+              style={{
+                cursor: draggedNode ? "grabbing" : "grab",
+              }}
+              onClick={(e) => {
+                if (draggedNode) return;
+                const rect = e.currentTarget.getBoundingClientRect();
+                const x =
+                  ((e.clientX - rect.left) / rect.width) * e.currentTarget.width;
+                const y =
+                  ((e.clientY - rect.top) / rect.height) * e.currentTarget.height;
+                const found = Object.entries(positions).find(
+                  ([n, p]) => Math.hypot(p.x - x, p.y - y) < 14
+                );
+                if (found) {
+                  const node = found[0];
+                  if (selected === null) {
+                    setSelected(node);
+                  } else if (node !== selected) {
+                    setTargetNode(node);
+                  } else {
+                    setSelected(null);
+                    setTargetNode(null);
+                  }
+                  setPathResult(null);
                 }
-                setPathResult(null);
-              }
-            }}
-            onMouseDown={(e) => {
-              const rect = e.currentTarget.getBoundingClientRect();
-              const x =
-                ((e.clientX - rect.left) / rect.width) * e.currentTarget.width;
-              const y =
-                ((e.clientY - rect.top) / rect.height) * e.currentTarget.height;
-              // find node
-              const found = Object.entries(positions).find(
-                ([n, p]) => Math.hypot(p.x - x, p.y - y) < 14
-              );
-              if (found) {
-                setDraggedNode(found[0]);
-              }
-            }}
-            onMouseMove={(e) => {
-              if (!draggedNode) return;
-              const rect = e.currentTarget.getBoundingClientRect();
-              const x =
-                ((e.clientX - rect.left) / rect.width) * e.currentTarget.width;
-              const y =
-                ((e.clientY - rect.top) / rect.height) * e.currentTarget.height;
-              // Update position with clamping to keep node on canvas
-              const newX = clamp(x, 40, e.currentTarget.width - 40);
-              const newY = clamp(y, 40, e.currentTarget.height - 40);
-              setPositions((prev) => ({
-                ...prev,
-                [draggedNode]: { x: newX, y: newY },
-              }));
-            }}
-            onMouseUp={() => {
-              setDraggedNode(null);
-            }}
-            onMouseLeave={() => {
-              setDraggedNode(null);
-            }}
-          />
+              }}
+              onMouseDown={(e) => {
+                const rect = e.currentTarget.getBoundingClientRect();
+                const x =
+                  ((e.clientX - rect.left) / rect.width) * e.currentTarget.width;
+                const y =
+                  ((e.clientY - rect.top) / rect.height) * e.currentTarget.height;
+                const found = Object.entries(positions).find(
+                  ([n, p]) => Math.hypot(p.x - x, p.y - y) < 14
+                );
+                if (found) {
+                  setDraggedNode(found[0]);
+                }
+              }}
+              onMouseMove={(e) => {
+                if (!draggedNode) return;
+                const rect = e.currentTarget.getBoundingClientRect();
+                const x =
+                  ((e.clientX - rect.left) / rect.width) * e.currentTarget.width;
+                const y =
+                  ((e.clientY - rect.top) / rect.height) * e.currentTarget.height;
+                const newX = clamp(x, 40, e.currentTarget.width - 40);
+                const newY = clamp(y, 40, e.currentTarget.height - 40);
+                setPositions((prev) => ({
+                  ...prev,
+                  [draggedNode]: { x: newX, y: newY },
+                }));
+              }}
+              onMouseUp={() => {
+                setDraggedNode(null);
+              }}
+              onMouseLeave={() => {
+                setDraggedNode(null);
+              }}
+            />
+          </div>
         </div>
-        <div
-          style={{
-            width: 340,
-            display: "flex",
-            flexDirection: "column",
-            gap: 12,
-          }}
-        >
-          <div
-            style={{
-              padding: 12,
-              background: "#082033",
-              borderRadius: 8,
-              color: "#dbeeff",
-            }}
-          >
-            <div>Total nodes: {nodes.length}</div>
-            <div>Total edges: {edges.length}</div>
-            <div>
-              Active edges:{" "}
-              {edges.filter((e) => e.times.includes(currentTime)).length}
+
+        <div className="sidebar">
+          <div className="card">
+            <h3 className="card-title">
+              Graph Statistics
+            </h3>
+            <div className="stats-grid">
+              <div className="stat-item">
+                <div className="stat-label">Total Nodes</div>
+                <div className="stat-value">{nodes.length}</div>
+              </div>
+              <div className="stat-item">
+                <div className="stat-label">Total Edges</div>
+                <div className="stat-value">{edges.length}</div>
+              </div>
+              <div className="stat-item">
+                <div className="stat-label">Active Edges</div>
+                <div className="stat-value">
+                  {edges.filter((e) => e.times.includes(currentTime)).length}
+                </div>
+              </div>
+              <div className="stat-item">
+                <div className="stat-label">Max Time</div>
+                <div className="stat-value">{maxTime}</div>
+              </div>
             </div>
           </div>
-          <div style={{ padding: 12, background: "#082033", borderRadius: 8 }}>
-            <div>
-              <strong>Load / Edit edges</strong>
-            </div>
+
+          <div className="card">
+            <h3 className="card-title">
+              Load / Edit Graph
+            </h3>
             <textarea
               value={edgeText}
               onChange={(e) => setEdgeText(e.target.value)}
-              placeholder={
-                "paste edge list (src dst t1 t2...) or load file above"
-              }
-              style={{
-                width: "100%",
-                height: 120,
-                background: "#02101a",
-                color: "#fff",
-              }}
+              placeholder="Format: numNodes numEdges maxTime&#10;src dst weight t1 t2 t3..."
+              className="textarea"
             />
-            <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-              <button onClick={applyEdgeText}>Apply</button>
+            <div className="button-group">
+              <button onClick={applyEdgeText} className="btn btn-success">
+                <svg className="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                Apply
+              </button>
               <button
                 onClick={() => {
-                  // Clear everything and let useEffect reload from input.txt
                   setEdgeText("");
                   setNodes([]);
                   setEdges([]);
@@ -804,32 +820,41 @@ export default function App() {
                   setSelected(null);
                   setTargetNode(null);
                 }}
+                className="btn btn-danger"
               >
+                <svg className="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
                 Clear
               </button>
-              <button onClick={() => setSelected(null)}>Clear Selection</button>
+              <button onClick={() => { setSelected(null); setTargetNode(null); }} className="btn btn-secondary">
+                Clear Selection
+              </button>
             </div>
           </div>
-          <div
-            style={{
-              padding: 12,
-              background: "#082033",
-              borderRadius: 8,
-              color: "#dbeeff",
-            }}
-          >
-            <div style={{ marginBottom: 8 }}>
-              <div>Source: {selected ?? "—"}</div>
-              <div>Target: {targetNode ?? "—"}</div>
+
+          <div className="card">
+            <h3 className="card-title">
+              Pathfinding
+            </h3>
+            <div className="info-text">
+              <span className="info-label">Source:</span>
+              <span className="info-value">{selected ?? "—"}</span>
             </div>
-            <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+            <div className="info-text">
+              <span className="info-label">Target:</span>
+              <span className="info-value">{targetNode ?? "—"}</span>
+            </div>
+            <div className="input-group" style={{ marginTop: '0.75rem' }}>
               <select
                 value={pathAlgo}
                 onChange={(e) => setPathAlgo(e.target.value)}
+                className="select"
+                style={{ flex: 1 }}
               >
-                <option value="bfs">BFS (earliest)</option>
-                <option value="dijkstra">Dijkstra (shortest)</option>
-                <option value="astar">A* (shortest)</option>
+                <option value="bfs">BFS (Earliest)</option>
+                <option value="dijkstra">Dijkstra (Shortest)</option>
+                <option value="astar">A* (Shortest)</option>
               </select>
               <button
                 onClick={() => {
@@ -839,53 +864,36 @@ export default function App() {
                     setIsPlaying(true);
                   }
                 }}
+                className="btn btn-primary"
+                disabled={!selected || !targetNode}
               >
-                Find Path
+                <svg className="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                Find
               </button>
             </div>
             {pathResult && (
-              <div style={{ maxHeight: 160, overflow: "auto" }}>
+              <div className="path-result">
                 {pathResult.noPath ? (
-                  <div style={{ color: "#ff6b6b", fontWeight: "bold" }}>
-                    No path exists
-                  </div>
+                  <div className="no-path">No path exists</div>
                 ) : (
-                  <>
-                    <div style={{ marginBottom: 8 }}>
-                      <div
-                        style={{
-                          fontSize: "18px",
-                          fontWeight: "bold",
-                          color: "#ffff00",
-                        }}
-                      >
-                        t = {pathResult.path[0]?.time ?? 0}
-                      </div>
-                      <div
-                        style={{
-                          fontSize: "18px",
-                          fontWeight: "bold",
-                          color: "#ffd700",
-                        }}
-                      >
-                        TOTAL WEIGHT : {pathResult.cost}
-                      </div>
-                      <div
-                        style={{
-                          fontSize: "18px",
-                          color: "#60a5fa",
-                          fontWeight: "500",
-                        }}
-                      >
-                        {pathResult.path.map((r, i) => (
-                          <span key={i}>
-                            {r.node}
-                            {i < pathResult.path.length - 1 ? " → " : ""}
-                          </span>
-                        ))}
-                      </div>
+                  <div className="path-info">
+                    <div className="path-time">
+                      Start Time: t = {pathResult.path[0]?.time ?? 0}
                     </div>
-                  </>
+                    <div className="path-cost">
+                      Total Weight: {pathResult.cost}
+                    </div>
+                    <div className="path-nodes">
+                      Path: {pathResult.path.map((r, i) => (
+                        <span key={i}>
+                          {r.node}
+                          {i < pathResult.path.length - 1 ? " → " : ""}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
                 )}
               </div>
             )}
