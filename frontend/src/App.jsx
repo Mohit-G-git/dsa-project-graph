@@ -118,16 +118,33 @@ export default function App() {
     }, 100);
   }
 
-  // Load graph from input.txt or use default random graph
+  // Load graph from input.txt on app initialization
   useEffect(() => {
-    const loadGraph = () => {
-      if (!edgeText.trim()) {
-        console.log("Loading default random graph with 50 nodes");
+    const loadGraphFromFile = async () => {
+      try {
+        const response = await fetch('/input.txt');
+        if (response.ok) {
+          const text = await response.text();
+          console.log("Loaded input.txt successfully");
+          parseInputAndSet(text);
+        } else {
+          console.warn("Failed to load input.txt, generating random graph");
+          generateRandomGraph(50, 20);
+        }
+      } catch (error) {
+        console.warn("Error loading input.txt:", error);
         generateRandomGraph(50, 20);
       }
     };
 
-    loadGraph();
+    loadGraphFromFile();
+  }, []); // Run only once on mount
+
+  // Load graph from textarea input
+  useEffect(() => {
+    if (edgeText.trim()) {
+      parseInputAndSet(edgeText);
+    }
   }, [edgeText]); // Re-run when edgeText changes
 
   // persist and apply theme
