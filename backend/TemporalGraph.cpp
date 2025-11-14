@@ -118,9 +118,100 @@ PathResult TemporalGraph::dijkstra(int start, int target, int t) const {
     return res;
 }
 
-// A* with zero heuristic (works like Dijkstra). Placeholder for future heuristics.
+// A* using an admissible heuristic computed from BFS hop-distance
+// multiplied by the minimum active edge weight at time t. If no
+// active edges are present or min weight is 0, the heuristic is 0
+// and A* behaves like Dijkstra.
 PathResult TemporalGraph::astar(int start, int target, int t) const {
-    return dijkstra(start, target, t);
+    PathResult res;
+    if (start <= 0 || start > nNodes) return res;
+    const long long INF = numeric_limits<long long>::max() / 4;
+
+    // 1) Build reverse adjacency for active edges at time t to compute
+    // hop-distance from every node to the target (BFS on reverse graph).
+    vector<vector<int>> revAdj(nNodes + 1);
+    long long minActiveWeight = INF;
+    for (const auto &e : edges) {
+        if (e.start <= t && t <= e.end) {
+            // reverse edge for BFS-from-target
+            if (e.dst >= 1 && e.dst <= nNodes && e.src >= 1 && e.src <= nNodes)
+                revAdj[e.dst].push_back(e.src);
+            if (e.weight >= 0 && e.weight < minActiveWeight) minActiveWeight = e.weight;
+        }
+    }
+    if (minActiveWeight == INF) minActiveWeight = 0; // no active edges
+
+    // 2) BFS from target on reversed active graph to get hop distances
+    vector<int> hopDist(nNodes + 1, -1);
+    if (target >= 1 && target <= nNodes) {
+        queue<int> q;
+        hopDist[target] = 0;
+        q.push(target);
+        while (!q.empty()) {
+            int u = q.front(); q.pop();
+            for (int v : revAdj[u]) {
+                if (hopDist[v] == -1) {
+                    hopDist[v] = hopDist[u] + 1;
+                    q.push(v);
+                }
+            }
+        }
+    }
+
+    // 3) A* search
+    // g = cost from start to node
+    vector<long long> g(nNodes + 1, INF);
+    vector<int> parent(nNodes + 1, -1);
+
+    // priority by f = g + h
+    using PQItem = pair<long long,int>;
+    struct Cmp { bool operator()(const PQItem &a, const PQItem &b) const { return a.first > b.first; } };
+    priority_queue<PQItem, vector<PQItem>, Cmp> open;
+
+    auto heuristic = [&](int node)->long long {
+        if (node < 1 || node > nNodes) return 0;
+        if (hopDist[node] == -1) return 0; // unknown/unreachable -> heuristic 0
+        if (minActiveWeight <= 0) return 0; // avoid multiplying by 0
+        return (long long)hopDist[node] * minActiveWeight;
+    };
+
+    g[start] = 0;
+    open.emplace(g[start] + heuristic(start), start);
+
+    while (!open.empty()) {
+        PQItem topItem = open.top(); open.pop();
+        long long f = topItem.first;
+        int u = topItem.second;
+        if (u == target) break;
+        // If f > g[u] + h(u) then this is an outdated entry; skip
+        long long curF = g[u] + heuristic(u);
+        if (f != curF) continue;
+
+        for (const auto &neighbor : neighbors(u, t)) {
+            int v = neighbor.first;
+            int w = neighbor.second;
+            if (g[u] + w < g[v]) {
+                g[v] = g[u] + w;
+                parent[v] = u;
+                open.emplace(g[v] + heuristic(v), v);
+            }
+        }
+    }
+
+    if (g[target] == INF) {
+        res.found = false;
+        return res;
+    }
+
+    res.found = true;
+    res.cost = g[target];
+    int cur = target;
+    while (cur != -1) {
+        res.path.push_back(cur);
+        cur = parent[cur];
+    }
+    reverse(res.path.begin(), res.path.end());
+    return res;
 }
 
 int TemporalGraph::nodeCount() const { return nNodes; }

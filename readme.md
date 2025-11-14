@@ -78,6 +78,3 @@ Notes:
 **Next steps (suggested)**
 - Open `backend/main.cpp` to confirm input flags and runtime usage.
 - Check `frontend/package.json` for available npm scripts before starting the frontend dev server.
-
-----
-Generated from the repository `backend/` and `frontend/` folder contents.
