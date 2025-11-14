@@ -1,13 +1,12 @@
 .vscode/
-backend/build.exe
+./backend/build.exe
 
 # ignore node_modules
-backend/temporal_graph.json
-node_modules/
-/frontend/node_modules/
-backend/GraphUtils.o
-backend/build.exe
-backend/temporal_graph
-backend/main.o
-backend/temporal.exe
-backend/TemporalGraph.o
+./backend/temporal_graph.json
+./frontend/node_modules/
+./backend/GraphUtils.o
+./backend/build.exe
+./backend/temporal_graph
+./backend/main.o
+./backend/temporal.exe
+./backend/TemporalGraph.o
