@@ -30,7 +30,7 @@ How to build (examples):
 
   powershell
   cd backend
-  g++ -std=c++17 main.cpp GraphUtils.cpp TemporalGraph.cpp -o graph_app
+  g++ -std=c++17 main.cpp GraphUtils.cpp TemporalGraph.cpp -o tempgraph_app
 
 How to run (examples):
 - Run the compiled executable with the sample input (paths relative to `backend/`):
